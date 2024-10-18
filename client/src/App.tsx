@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { BrowserRouter, Router, useSearchParams } from "react-router-dom";
 import Edit from "./pages/Edit";
+import Tree from "./components/tree";
 
 const App = () => {
     return (
         <>
-            <h1>REPL</h1>
             <BrowserRouter>
                 <Edit />
             </BrowserRouter>

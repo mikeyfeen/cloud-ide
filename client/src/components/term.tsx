@@ -1,63 +1,60 @@
 import { useEffect, useRef } from "react";
 import { Socket } from "socket.io-client";
-import { Terminal } from "xterm";
-import { FitAddon } from "@xterm/addon-fit";
-const fitAddon = new FitAddon();
+import { Terminal } from "@xterm/xterm";
+import "@xterm/xterm/css/xterm.css";
 
 function ab2str(buf: ArrayBuffer): string {
-    return new TextDecoder().decode(buf);
+  return new TextDecoder("utf-8").decode(buf);
 }
 
 const OPTIONS_TERM = {
-    useStyle: true,
-    screenKeys: true,
-    cursorBlink: true,
-    cols: 200,
-    theme: {
-        background: "black",
-    },
+  useStyle: true,
+  screenKeys: true,
+  cursorBlink: true,
+  cols: 70,
+  theme: {
+    background: "black",
+  },
 };
+
 export const TerminalComponent = ({ socket }: { socket: Socket }) => {
-    const terminalRef = useRef();
+  const terminalRef = useRef<HTMLDivElement>(null);
+  const termInstance = useRef<Terminal | null>(null);
 
-    useEffect(() => {
-        if (!terminalRef || !terminalRef.current || !socket) {
-            return;
-        }
+  useEffect(() => {
+    if (!terminalRef.current || !socket) {
+      return;
+    }
 
-        socket.emit("requestTerminal");
-        socket.on("terminal", terminalHandler);
-        const term = new Terminal(OPTIONS_TERM);
-        term.loadAddon(fitAddon);
-        term.open(terminalRef.current);
-        fitAddon.fit();
-        function terminalHandler({ data }) {
-            if (data instanceof ArrayBuffer) {
-                console.error(data);
-                console.log(ab2str(data));
-                term.write(ab2str(data));
-            }
-        }
-        term.onData((data) => {
-            console.log(data);
-            socket.emit("terminalData", {
-                data,
-            });
-        });
+    if (termInstance.current) {
+      termInstance.current.dispose();
+    }
 
-        socket.emit("terminalData", {
-            data: "\n",
-        });
+    const term = new Terminal(OPTIONS_TERM);
+    termInstance.current = term;
+    term.open(terminalRef.current);
 
-        return () => {
-            socket.off("terminal");
-        };
-    }, [terminalRef]);
+    const terminalHandler = ({ data }: { data: ArrayBuffer }) => {
+      if (data instanceof ArrayBuffer) {
+        term.write(ab2str(data));
+      }
+    };
 
-    return (
-        <div
-            style={{ width: "40vw", height: "400px", textAlign: "left" }}
-            ref={terminalRef}
-        ></div>
-    );
+    socket.emit("requestTerminal");
+    socket.on("terminal", terminalHandler);
+
+    term.onData((data) => {
+      socket.emit("terminalData", { data });
+    });
+
+    socket.emit("terminalData", { data: "clear\n" });
+
+    return () => {
+      socket.off("terminal", terminalHandler);
+      term.dispose();
+      termInstance.current = null;
+    };
+  }, [socket]);
+
+  return <div className="p-1 overflow-clip" ref={terminalRef}></div>;
 };

@@ -12,16 +12,17 @@ export default class TermController {
 
         const terminal = spawn('bash', [], {
             name: 'xterm',
-            cols: 100,
-            cwd: '/sessions',
+            cols: 70,
+            env: process.env,
         });
 
         terminal.onData(data => {
-            process.stdout.write(data);
+            onData(data, id);
         }
         );
 
         this.sessions[id] = {terminal, filesID};
+
 
         return terminal;
     }
