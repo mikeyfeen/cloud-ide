@@ -4,6 +4,7 @@ TODOS:
 
 Frontend:
 
+- ~~Creation Page~~
 - Create File functionality (creates file based on last selected folder or folder that contains file selected)
 - Create way to delete file
 - Auth
@@ -11,6 +12,7 @@ Frontend:
 
 Backend:
 
+- Startup Server
 - Test upload file to s3
 - Create limit for each repl filesize
 - Kubernetes Expansion
