@@ -1,22 +1,15 @@
 import React, { useEffect, useState } from "react";
 import TreeView, { flattenTree } from "react-accessible-treeview";
-import {
-  FaList,
-  FaRegFolder,
-  FaRegFolderOpen,
-  FaPython,
-  FA,
-} from "react-icons/fa";
-import { DiCss3, DiJavascript, DiNpm } from "react-icons/di";
-import { TbBrandCSharp, TbBrandCpp } from "react-icons/tb";
+import * as icons from "../utils/icons";
 
 import "./tree.css";
 import { Socket } from "socket.io-client";
+import EditableText from "./editabletext";
 
 const Tree = ({
   socket,
   setCurrentFile,
-}: { 
+}: {
   socket: Socket;
   setCurrentFile: (file: string) => void;
 }) => {
@@ -78,6 +71,11 @@ const Tree = ({
     }
   };
 
+  const handleDeleteNode = () => {
+    // socket delete file remotely
+    // refetch directory
+  };
+
   return (
     <>
       <TreeView
@@ -102,21 +100,28 @@ const Tree = ({
               paddingLeft: 20 * (level - 1),
               display: "flex",
               alignItems: "center",
+              justifyContent: "space-between",
             }}
           >
-            {isBranch ? (
-              <FolderIcon isOpen={isExpanded} />
-            ) : (
-              <FileIcon filename={element.name} />
-            )}
-            <span
-              style={{
-                textOverflow: "ellipsis",
-                overflow: "hidden",
-                whiteSpace: "nowrap",
-              }}
-            >
-              {element.name}
+            <>
+              {isBranch ? (
+                <FolderIcon isOpen={isExpanded} />
+              ) : (
+                <FileIcon filename={element.name} />
+              )}
+              <span
+                style={{
+                  textOverflow: "ellipsis",
+                  overflow: "hidden",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                <EditableText initialText={element.name} />
+              </span>
+            </>
+
+            <span className="align-end" onClick={handleDeleteNode}>
+              {!isBranch && <icons.FaTrashAlt size={10} color="red" />}
             </span>
           </div>
         )}
@@ -127,9 +132,9 @@ const Tree = ({
 
 const FolderIcon = ({ isOpen }: { isOpen: boolean }) => {
   return isOpen ? (
-    <FaRegFolderOpen className="icon" />
+    <icons.FaRegFolderOpen className="icon" />
   ) : (
-    <FaRegFolder className="icon" />
+    <icons.FaRegFolder className="icon" />
   );
 };
 
@@ -137,21 +142,21 @@ const FileIcon = ({ filename }: { filename: String }) => {
   const extension = filename.slice(filename.lastIndexOf(".") + 1);
   switch (extension) {
     case "js":
-      return <DiJavascript color="yellow" className="icon" />;
+      return <icons.DiJavascript color="yellow" className="icon" />;
     case "css":
-      return <DiCss3 color="turquoise" className="icon" />;
+      return <icons.DiCss3 color="turquoise" className="icon" />;
     case "json":
-      return <FaList color="white" className="icon" />;
+      return <icons.FaList color="white" className="icon" />;
     case "npmignore":
-      return <DiNpm color="red" className="icon" />;
+      return <icons.DiNpm color="red" className="icon" />;
     case "py":
-      return <FaPython color="DeepSkyBlue" className="icon" />;
+      return <icons.FaPython color="DeepSkyBlue" className="icon" />;
     case "md":
-      return <FaList color="white" className="icon" />;
+      return <icons.FaList color="white" className="icon" />;
     case "cs":
-      return <TbBrandCSharp color="DeepSkyBlue" className="icon" />;
+      return <icons.TbBrandCSharp color="DeepSkyBlue" className="icon" />;
     case "cpp":
-      return <TbBrandCpp color="DeepSkyBlue" className="icon" />;
+      return <icons.TbBrandCpp color="DeepSkyBlue" className="icon" />;
     default:
       return null;
   }
