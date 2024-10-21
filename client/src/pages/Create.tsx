@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Select, { SingleValue } from "react-select";
 import { FaDice } from "react-icons/fa";
 import { generateName } from "../utils/name";
+import EditableText from "../components/editabletext";
 
 interface OptionType {
   value: string;
@@ -54,7 +55,7 @@ const Create = () => {
             </button>
           </div>
           <Select
-            className="p-3"
+            className="p-3 text-black"
             defaultValue={selectedOption}
             onChange={handleChange}
             options={options}

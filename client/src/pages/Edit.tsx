@@ -6,6 +6,8 @@ import Tree from "../components/tree";
 import Code from "../components/code";
 import debounce from "../utils/debounce";
 import findLanguage from "../utils/languages";
+import { FaFileAlt } from "react-icons/fa";
+import { FaFolder } from "react-icons/fa";
 
 function useSocket(replId: string) {
   const [socket, setSocket] = useState<Socket | null>(null);
@@ -68,6 +70,10 @@ const Edit = () => {
     }
   }, [fileContent]);
 
+  const handleCreateFile = () => {};
+
+  const handleCreateFolder = () => {};
+
   if (!loaded) {
     return <div>Loading...</div>;
   }
@@ -77,6 +83,20 @@ const Edit = () => {
       <div className="border-gray-800 border-2 mt-4">
         <div className="grid grid-cols-6 grid-rows-1">
           <div className="row-span-full">
+            <div className="flex justify-center">
+              <button
+                className="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow"
+                onClick={handleCreateFile}
+              >
+                <FaFileAlt />
+              </button>
+              <button
+                className="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow"
+                onClick={handleCreateFolder}
+              >
+                <FaFolder />
+              </button>
+            </div>
             <Tree socket={socket} setCurrentFile={setCurrentFile} />
           </div>
           <div className="mt-4 col-span-3 row-span-full">
