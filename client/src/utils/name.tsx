@@ -17,6 +17,22 @@ const words = [
   "Outlet",
   "White",
   "Laptop",
+  "Address",
+  "Add",
+  "Ability",
+  "Big",
+  "Believe",
+  "Behind",
+  "Behavior",
+  "Camera",
+  "Choice",
+  "Create",
+  "Drug",
+  "Feel",
+  "Grow",
+  "Health",
+  "Might",
+  "Mr",
 ];
 
 const generateName = (size: number) => {
