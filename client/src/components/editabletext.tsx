@@ -2,10 +2,12 @@ import React, { useState } from "react";
 
 interface EditableTextProps {
   initialText: string;
+  isEdit?: boolean;
+  onBlur?: () => void;
 }
 
-const EditableText: React.FC<EditableTextProps> = ({ initialText }) => {
-  const [isEditing, setIsEditing] = useState(false);
+const EditableText: React.FC<EditableTextProps> = ({ initialText, isEdit = false, onBlur = () => {} }) => {
+  const [isEditing, setIsEditing] = useState(isEdit);
   const [text, setText] = useState(initialText);
 
   const handleDoubleClick = () => {
@@ -22,6 +24,7 @@ const EditableText: React.FC<EditableTextProps> = ({ initialText }) => {
     }
     setIsEditing(false);
     //save text
+    onBlur();
   };
   return (
     <div onDoubleClick={handleDoubleClick}>

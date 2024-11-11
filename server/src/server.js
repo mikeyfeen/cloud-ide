@@ -91,5 +91,15 @@ function initHandlers(socket, fsID) {
         // }
     });
 
+    // socket.on("insertFile", async ({ name, path }) => {
+    //     const fullPath = path.resolve(`/workspace/${name}`)
+    //     try {
+    //         await saveFile(fullPath)
+    //     }
+    //     catch (e){
+    //         console.log(e)
+    //     }
+    // })
+
 
 }

@@ -5,6 +5,8 @@ import * as icons from "../utils/icons";
 import "./tree.css";
 import { Socket } from "socket.io-client";
 import EditableText from "./editabletext";
+import { FaFileAlt } from "react-icons/fa";
+import { FaFolder } from "react-icons/fa";
 
 const Tree = ({
   socket,
@@ -14,12 +16,14 @@ const Tree = ({
   setCurrentFile: (file: string) => void;
 }) => {
   const [folder, setFolder] = useState({ name: "root", children: [] });
+  const [previousFolder, setPreviousFolder] = useState(null);
   const [selectedBranch, setSelectedBranch] = useState(null);
+  const [selectedNode, setSelectedNode] = useState(null);
+  const [newNode, setNewNode] = useState(null);
 
-  const treeData2filepath = (treeData) => {
+  const treeData2filepath = (treeData, cur = data[treeData.id]) => {
     //parent is a number so must lookup name
     let path = "";
-    let cur = data[treeData.id];
 
     while (cur && cur.parent !== null) {
       // while parent is not 0
@@ -30,8 +34,7 @@ const Tree = ({
     return path;
   };
 
-  useEffect(() => {
-    //socket is fetchDir
+  const updateTree = () => {
     socket?.emit("fetchDir", "", (treeDat) => {
       const correctedData = {
         name: "",
@@ -39,7 +42,20 @@ const Tree = ({
       };
       setFolder(correctedData);
     });
+    if (previousFolder)
+      setNewNode(findNewNode(flattenTree(previousFolder), flattenTree(folder)));
+    console.log("newNode", newNode);
+  };
 
+  const findNewNode = (oldData, newData) => {
+    if (!oldData) return null;
+    const oldIds = new Set(oldData.map((node) => node.id));
+    return newData.find((node) => !oldIds.has(node.id));
+  };
+
+  useEffect(() => {
+    //socket is fetchDir
+    updateTree();
     //BUG: updateTree is not being emitted
     // socket.on("updateTree", (treeDat) => {
     //   console.log("here");
@@ -55,12 +71,15 @@ const Tree = ({
     // };
   }, [socket]);
 
+  // useEffect(() => {}, [selectedNode]);
+
   const data = flattenTree(folder);
   const handleSelect = async (treeState) => {
     //if file does not have children then it is a file
     //convert the treedata to path
-    //store the branch of the last selected file or branch
-
+    //stor
+    setSelectedNode(treeState);
+    console.log(selectedNode);
     if (!treeState.isBranch) {
       const peen = await treeData2filepath(treeState.element);
       setCurrentFile(peen);
@@ -76,8 +95,48 @@ const Tree = ({
     // refetch directory
   };
 
+  const handleCreateFile = async () => {
+    if (selectedNode) {
+      if (selectedNode.isBranch) {
+        const peen = treeData2filepath(selectedNode.element);
+
+        socket.emit("updateContent", {
+          path: peen + "unnamed file/",
+          content: "aaaa",
+        });
+      } else {
+        const peen = treeData2filepath(
+          selectedNode.element,
+          selectedNode.element.parent
+        );
+        socket.emit("updateContent", {
+          path: peen + "unnamed file/",
+          content: "aaaa",
+        });
+      }
+    }
+    updateTree();
+    //created a file on refresh named "unnamed file wherever the parent is located"
+  };
+
+  const handleCreateFolder = () => {};
+
   return (
     <>
+      <div className="flex justify-center">
+        <button
+          className="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow"
+          onClick={handleCreateFile}
+        >
+          <FaFileAlt />
+        </button>
+        <button
+          className="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow"
+          onClick={handleCreateFolder}
+        >
+          <FaFolder />
+        </button>
+      </div>
       <TreeView
         className="ide"
         data={data}
@@ -100,7 +159,10 @@ const Tree = ({
               paddingLeft: 20 * (level - 1),
               display: "flex",
               alignItems: "center",
-              justifyContent: "space-between",
+              backgroundColor:
+                selectedNode && selectedNode.element.id === element.id
+                  ? "darkgray"
+                  : "inherit",
             }}
           >
             <>
@@ -119,10 +181,10 @@ const Tree = ({
                 <EditableText initialText={element.name} />
               </span>
             </>
-
-            <span className="align-end" onClick={handleDeleteNode}>
+            {/* Delete icon should only apear if it is the current selected file */}
+            {/* <span className="align-end" onClick={handleDeleteNode}>
               {!isBranch && <icons.FaTrashAlt size={10} color="red" />}
-            </span>
+            </span> */}
           </div>
         )}
       />

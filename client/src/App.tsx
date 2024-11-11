@@ -9,9 +9,9 @@ const App = () => {
   return (
     <>
       <BrowserRouter>
-        {/* <Edit /> */}
+        <Edit />
         {/* <Login /> */}
-        <Create />
+        {/* <Create /> */}
       </BrowserRouter>
     </>
   );
